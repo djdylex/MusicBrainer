@@ -18,9 +18,12 @@
     <ClCompile Include="MusicBrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HTMBrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HTMNeuron.h">
+    <ClInclude Include="HTMBrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MiniColumn.h">
