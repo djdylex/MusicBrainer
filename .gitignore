@@ -1,0 +1,14 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# C/C++
+*.ipch
+*.db
+
+# Build outputs
+bin/
+obj/
