@@ -23,7 +23,7 @@ int HTMLayer::randInt(int min, int max) {
 
 float HTMLayer::randFloat() {
 	std::uniform_real_distribution<float> dist(0, 1);
-	return dist(rd_)
+	return dist(rd_);
 }
 
 MatrixXd DecToBinVec(int dec) {
@@ -43,7 +43,7 @@ MatrixXd DecToBinVec(int dec) {
 
 // In the feed forward, input is converted to a sparse selection of minicolumns, for which all cells in the minicolumn have the exact same receptive field. (e.g will activate on seeing the same symbol)
 void HTMLayer::createColumnConverter() {
-	// convert input to binary number < no of minicolumns using some kind of or random
+	/*// convert input to binary number < no of minicolumns using some kind of or random
 	double A = (sqrt(5.0) - 1.0) / 2.0;
 	int tableSize = pow(2, columns_);
 
@@ -53,10 +53,59 @@ void HTMLayer::createColumnConverter() {
 		int hash = tableSize * (i * A);
 
 		columnConverter_[i] = DecToBinVec(hash);
+	}*/
+
+	int k = 40; //cols to be activated during feed forward
+	for (int inputVal = 0; inputVal < inputRange_; inputVal++) {
+		vector<int> nums(columns_);
+
+		for (int i = 0; i < columns_; i++) {
+			nums[i] = i;
+		}
+
+		for (int i = 0; i < k; i++) {
+			int swapIndx = randInt(0, columns_ - 1);
+			swap(nums[i], nums[swapIndx]);
+			columnConverter_[inputVal][i] = nums[i];
+		}
 	}
 }
 
 void HTMLayer::feedForward(int symbol) {
+	auto activeCols = columnConverter_[symbol];
+
+	for (int col = 0; col < activeCols.size(); col++) {
+		for (int cell = 0; cell < cells_; cell++) {
+			for (int seg = 0; seg < segmentsCount_; seg++) { // Update predicted just for relevant columns
+				int sum = 0;
+				for (const auto& [key, value] : segments_[col][cell][seg].connections) {
+					sum += ceil(value - permThresh) * active_(col, cell);
+				}
+
+				if (sum > predictThresh) {
+					predictive_(col, cell) = 1;
+				}
+			}
+		}
+
+		bool predicted = false;
+		for (int cell = 0; cell < cells_; cell++) {
+			if (predictive_(col, cell) == 1) {
+				active_(col, cell) = 1;
+				predicted = true;
+			}
+		}
+
+		if (!predicted) {
+			for (int cell = 0; cell < cells_; cell++) {
+				active_(col, cell) = 1;
+			}
+		}
+	}
+
+	// Predictive networks (WHY DONT I JUST DO THIS FIRST - LAZY CHECKING BASICALLY)
+	// multiply hardman - activation network by segments
+	// 
 	// All cells in minicolumn share same feed forward receptive field.
 	// If a cell's feedforward is above threshold and was pre
 	// on feed forward, convert binary number to actdicted then that cell is set as active

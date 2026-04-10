@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 #include <random>
+#include <set>
+#include <algorithm>
 
 using namespace std;
 using namespace Eigen;
@@ -25,13 +27,16 @@ private:
 	//MatrixXd columnConverter_; // columns x inputrange
 	MatrixXd active_;
 	MatrixXd predictive_;
-	std::map<int, MatrixXd> columnConverter_;
+	std::map<int, std::vector<int>> columnConverter_;
+	//std::map<int, 
 	const int inputRange_; // e.g 36 notes
 	const int columns_ = 1024;
 	const int ffCols_ = columns_ * 0.02; // Conversion of data to minicolumns (feedforward)
 	const int cells_ = 32; // cells per column
 	const int segmentsCount_ = 128; // segments per cell
 	const int maxSynapses_ = 40;
+	const int predictThresh = 15;
+	const int permThresh = 0.3;
 
 public:
 	HTMLayer(int columns, int cells, int inputRange);
